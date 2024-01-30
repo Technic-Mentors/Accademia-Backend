@@ -11,9 +11,9 @@ const multer = require("multer");
 const cloudinary = require("../Cloudinary");
 // img storage path
 const imgconfig = multer.diskStorage({
-    destination:(req,file,callback)=>{
-        callback(null,"./uploads")
-    },
+    // destination:(req,file,callback)=>{
+    //     callback(null,"./uploads")
+    // },
     filename:(req,file,callback)=>{
         callback(null,`image-${Date.now()}.${file.originalname}`)
     }
