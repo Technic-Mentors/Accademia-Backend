@@ -20,6 +20,9 @@ const signUpSchema = new Schema({
     role: {
         type: String,
         required: true
+    },
+    institute:{
+        type: String
     }
 })
 

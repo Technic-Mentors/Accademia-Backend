@@ -12,9 +12,12 @@ const enrollSchema = new Schema({
         ref: "Course",
         required: true
     },
-    description:{
-        type:String,
-        required:true
+    description: {
+        type: String,
+        required: true
+    },
+    status: {
+        type: String
     }
 })
 
