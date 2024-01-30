@@ -227,7 +227,7 @@ router.post("/addcourse",upload.single("image"), async (req, res) => {
             image:upload.secure_url,
         });
 
-        
+
         res.json(newCourse);
     } catch (error) {
         console.log(error);
