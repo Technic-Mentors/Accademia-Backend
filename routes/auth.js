@@ -218,8 +218,8 @@ router.get("/countuser", async (req, res) => {
 router.post("/addcourse",upload.single("image"), async (req, res) => {
     try {
         const { title, duration, level, description } = req.body;
-        const upload = await cloudinary.uploader.upload(req.file);
-        console.log(upload.secure_url)
+        const upload = await cloudinary.uploader.upload(req.file.path);
+        
         const newCourse = await Course.create({
             title,
             duration,
