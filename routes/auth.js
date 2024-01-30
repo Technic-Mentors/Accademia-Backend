@@ -221,11 +221,9 @@ router.get("/countuser", async (req, res) => {
 router.post("/addcourse",upload.single("image"), async (req, res) => {
     try {
         const { title, duration, level, description } = req.body;
-         // Check if req.file exists and has a 'path' property
-         if (!req.file || !req.file.path) {
-            return res.status(400).send("No file uploaded");
-        }
+       
         const upload = await cloudinary.uploader.upload(req.file.path);
+        res.send(upload)
         const newCourse = await Course.create({
             title,
             duration,
@@ -233,8 +231,6 @@ router.post("/addcourse",upload.single("image"), async (req, res) => {
             description,
             image:upload.secure_url,
         });
-
-
         res.json(newCourse);
     } catch (error) {
         console.log(error);
