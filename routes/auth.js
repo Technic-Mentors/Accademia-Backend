@@ -9,32 +9,29 @@ const bcrypt = require("bcrypt")
 const Signup = require("../Schema/Signup")
 const multer = require("multer");
 const cloudinary = require("../Cloudinary");
-const path = require("path");
-
 // img storage path
 const imgconfig = multer.diskStorage({
-    destination: (req, file, callback) => {
-        const uploadPath = path.join(process.cwd(), "uploads");
-        callback(null, uploadPath);
+    destination:(req,file,callback)=>{
+        callback(null,"./uploads")
     },
-    filename: (req, file, callback) => {
-        callback(null, `image-${Date.now()}.${file.originalname}`);
+    filename:(req,file,callback)=>{
+        callback(null,`image-${Date.now()}.${file.originalname}`)
     }
 });
 
 // img filter
-const isImage = (req, file, callback) => {
-    if (file.mimetype.startsWith("image")) {
-        callback(null, true);
-    } else {
-        callback(new Error("Only images are allowed"));
+const isImage = (req,file,callback)=>{
+    if(file.mimetype.startsWith("image")){
+        callback(null,true)
+    }else{
+        callback(new Error("only images is allow"))
     }
-};
+}
 
 const upload = multer({
-    storage: imgconfig,
-    fileFilter: isImage
-});
+    storage:imgconfig,
+    fileFilter:isImage
+})
 
 // Api for adding user
 router.post("/adduser", async (req, res) => {
@@ -221,9 +218,8 @@ router.get("/countuser", async (req, res) => {
 router.post("/addcourse",upload.single("image"), async (req, res) => {
     try {
         const { title, duration, level, description } = req.body;
-       
         const upload = await cloudinary.uploader.upload(req.file.path);
-        res.send(upload)
+        console.log(upload.secure_url)
         const newCourse = await Course.create({
             title,
             duration,
@@ -231,6 +227,8 @@ router.post("/addcourse",upload.single("image"), async (req, res) => {
             description,
             image:upload.secure_url,
         });
+
+
         res.json(newCourse);
     } catch (error) {
         console.log(error);
