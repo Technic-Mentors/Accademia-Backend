@@ -4,7 +4,8 @@ const { Schema } = mongoose
 const courseSchema = new Schema({
     title: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     duration: {
         type: String,
@@ -18,7 +19,20 @@ const courseSchema = new Schema({
         type: String,
         required: true
     },
-    image:{
+    learning: {
+        type: String,
+        required: true
+    },
+    content: {
+        type: String,
+        required: true
+    },
+    categoryId: {
+        type: Schema.Types.ObjectId,
+        ref: "Category",
+        required: true
+    },
+    image: {
         type: String
     }
 })

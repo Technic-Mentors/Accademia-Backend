@@ -7,6 +7,7 @@ const School = require("../Schema/School")
 const Enroll = require("../Schema/Enrollment")
 const bcrypt = require("bcrypt")
 const Signup = require("../Schema/Signup")
+const Category = require("../Schema/Category")
 const multer = require("multer");
 const cloudinary = require("../Cloudinary");
 // img storage path
@@ -14,23 +15,23 @@ const imgconfig = multer.diskStorage({
     // destination:(req,file,callback)=>{
     //     callback(null,"./uploads")
     // },
-    filename:(req,file,callback)=>{
-        callback(null,`image-${Date.now()}.${file.originalname}`)
+    filename: (req, file, callback) => {
+        callback(null, `image-${Date.now()}.${file.originalname}`)
     }
 });
 
 // img filter
-const isImage = (req,file,callback)=>{
-    if(file.mimetype.startsWith("image")){
-        callback(null,true)
-    }else{
+const isImage = (req, file, callback) => {
+    if (file.mimetype.startsWith("image")) {
+        callback(null, true)
+    } else {
         callback(new Error("only images is allow"))
     }
 }
 
 const upload = multer({
-    storage:imgconfig,
-    fileFilter:isImage
+    storage: imgconfig,
+    fileFilter: isImage
 })
 
 // Api for adding user
@@ -215,19 +216,94 @@ router.get("/countuser", async (req, res) => {
 })
 
 // add course
-router.post("/addcourse",upload.single("image"), async (req, res) => {
+router.post("/addcategory", async (req, res) => {
     try {
-        const { title, duration, level, description } = req.body;
-        const upload = await cloudinary.uploader.upload(req.file.path);
-        
+        const { category } = req.body;
+        const previousCategory = await Category.find()
+        const categories = previousCategory.map((data) => {
+            return data.category.toLowerCase()
+        })
+        if (categories.includes(category.toLowerCase())) {
+            return res.status(400).json({ message: "This category already added" })
+        }
+        const newCategory = await Category.create({
+            category
+        });
+
+        res.status(200).json(newCategory);
+    } catch (error) {
+        console.log(error);
+        res.status(500).send("Internal server error occurred");
+    }
+});
+// get all categories
+router.get("/getcategory", async (req, res) => {
+    try {
+        const allCategories = await Category.find();
+
+        res.json(allCategories);
+    } catch (error) {
+        console.log(error);
+        res.status(500).send("Internal server error occurred");
+    }
+});
+// del all categories
+router.delete("/delcategory/:id", async (req, res) => {
+    try {
+        const allCategories = await Category.findByIdAndDelete(req.params.id);
+        if (!allCategories) {
+            res.status(400).json({ message: "category not exists" })
+        }
+        res.json({ message: "successfully deleted categories" });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send("Internal server error occurred");
+    }
+});
+//  get only category
+router.get("/getOnlyCategory", async (req, res) => {
+    try {
+        const allCategory = await Category.find({}, "category")
+        res.send(allCategory)
+    } catch (error) {
+        console.log(error);
+        res.status(500).send("Internal server error occurred");
+    }
+})
+
+// add course
+router.post("/addcourse", upload.single("image"), async (req, res) => {
+    try {
+        const { title, duration, level, description, categoryId, learning, content } = req.body;
+        const checkCategory = await Category.findById(categoryId)
+        if (!checkCategory) {
+            return res.status(400).json({ message: "category is not present" })
+        }
+        const CourseData = await Course.find({})
+        const CourseTitle = CourseData.map((data) => {
+            return data.title
+        })
+
+        if (CourseTitle.includes(title)) {
+            return res.status(400).json({ message: "Course with this title already exists" })
+        }
+
+        let img_url;
+        if (req.file) {
+            const upload = await cloudinary.uploader.upload(req.file.path);
+            img_url = upload.secure_url
+        }
+
         const newCourse = await Course.create({
             title,
             duration,
             level,
             description,
-            image:upload.secure_url,
+            image: img_url,
+            categoryId,
+            learning,
+            content
         });
-
 
         res.json(newCourse);
     } catch (error) {
@@ -239,7 +315,13 @@ router.post("/addcourse",upload.single("image"), async (req, res) => {
 router.get("/getAllCourses", async (req, res) => {
     try {
         const allCourses = await Course.find()
-        res.json(allCourses)
+        const Catagory = allCourses.map((data) => {
+            const cat = data.categoryId.toString()
+            const allCat = Category.findById(cat, "category")
+            return allCat;
+        })
+        const onlyCategory = await Promise.all(Catagory)
+        res.status(200).json({ allCourses, onlyCategory });
     } catch (error) {
         console.log(error)
         res.status(500).send("internal server error occured")
@@ -252,16 +334,34 @@ router.get("/getcourse/:id", async (req, res) => {
         if (!courseId) {
             res.status(400).json({ message: "course not exists" })
         }
-        res.json(courseId)
+        const categoryId = courseId.categoryId.toString()
+        const categoryy = await Category.findById(categoryId)
+        res.json({ courseId, categoryy })
+    } catch (error) {
+        console.log(error)
+        res.send("internal server error occured")
+    }
+})
+// get course throgh title
+router.get("/getcorse/:title", async (req, res) => {
+    try {
+        const courseTitle = await Course.findOne({ title: req.params.title })
+
+        if (!courseTitle) {
+            res.status(400).json({ message: "course not exists" })
+        }
+        const courseId = courseTitle.categoryId.toString()
+        const categoryy = await Category.findById(courseId)
+        res.json({ courseTitle, categoryy })
     } catch (error) {
         console.log(error)
         res.send("internal server error occured")
     }
 })
 // update course throgh id
-router.put("/updatecourse/:id", async (req, res) => {
+router.put("/updatecourse/:id", upload.single("image"), async (req, res) => {
     try {
-        const { title, duration, level, description } = req.body
+        const { title, duration, level, description, categoryId, learning, content } = req.body
 
         const newCourse = ({})
         if (title) {
@@ -275,6 +375,20 @@ router.put("/updatecourse/:id", async (req, res) => {
         }
         if (description) {
             newCourse.description = description
+        }
+        if (categoryId) {
+            newCourse.categoryId = categoryId
+        }
+        if (learning) {
+            newCourse.learning = learning
+        }
+        if (content) {
+            newCourse.content = content
+        }
+
+        if (req.file) {
+            const uploadResult = await cloudinary.uploader.upload(req.file.path);
+            newCourse.image = uploadResult.secure_url;
         }
 
         let courseId = await Course.findById(req.params.id)
@@ -416,16 +530,34 @@ router.get("/countteacher", async (req, res) => {
 })
 
 // add school
-router.post("/addschool", async (req, res) => {
+router.post("/addschool", upload.single("image"), async (req, res) => {
     try {
-        const { name, email, number, city, address, website } = req.body
+        const { name, email, number, city, address, detail, category, fpNumber } = req.body
+
+        const checkName = await School.find()
+        const CheckSchoolName = checkName.map((data)=>{
+            return data.name
+        })
+        if(CheckSchoolName.includes(name)){
+            return res.status(400).json({message:"Scholl already regitered with this name"})
+        }
+
+        let img_url;
+        if (req.file) {
+            const upload = await cloudinary.uploader.upload(req.file.path);
+            img_url = upload.secure_url
+        }
+
         const newSchool = await School.create({
             name,
             email,
             number,
+            image: img_url,
             city,
             address,
-            website
+            detail,
+            category,
+            fpNumber
         })
 
         res.json(newSchool)
@@ -445,7 +577,7 @@ router.get("/getAllSchools", async (req, res) => {
         res.status(500).send("internal server error occured")
     }
 })
-// get teacher throgh id
+// get school throgh id
 router.get("/getschool/:id", async (req, res) => {
     try {
         const schoolId = await School.findById(req.params.id)
@@ -458,10 +590,23 @@ router.get("/getschool/:id", async (req, res) => {
         res.send("internal server error occured")
     }
 })
-// update course throgh id
-router.put("/updateschool/:id", async (req, res) => {
+// get school throgh name
+router.get("/getschol/:name", async (req, res) => {
     try {
-        const { name, email, number, city, address, website } = req.body
+        const schoolName = await School.findOne({name :req.params.name})
+        if (!schoolName) {
+          return res.status(400).json({ message: "school not exists" })
+        }
+        res.json(schoolName)
+    } catch (error) {
+        console.log(error)
+        res.send("internal server error occured")
+    }
+})
+// update course throgh id
+router.put("/updateschool/:id", upload.single("image"), async (req, res) => {
+    try {
+        const { name, email, number, city, address, detail, category, fpNumber } = req.body
 
         const newSchool = ({})
         if (name) {
@@ -479,8 +624,19 @@ router.put("/updateschool/:id", async (req, res) => {
         if (address) {
             newSchool.address = address
         }
-        if (website) {
-            newSchool.website = website
+        if (detail) {
+            newSchool.detail = detail
+        }
+        if (category) {
+            newSchool.category = category
+        }
+        if (fpNumber) {
+            newSchool.fpNumber = fpNumber
+        }
+
+        if (req.file) {
+            const uploadResult = await cloudinary.uploader.upload(req.file.path);
+            newSchool.image = uploadResult.secure_url;
         }
 
         let schoolId = await School.findById(req.params.id)
@@ -606,7 +762,7 @@ router.put("/rejectStatus/:id", async (req, res) => {
 router.get("/getenrol/:id", async (req, res) => {
     try {
         const enrollCourse = await Enroll.find({ studentId: req.params.id })
-        if (!enrollCourse) {
+        if (!enrollCourse || enrollCourse.length === 0) {
             return res.status(400).json({ message: "Not found any enroll course" })
         }
         const enrollStudentId = enrollCourse[0].studentId.toString()
@@ -618,15 +774,15 @@ router.get("/getenrol/:id", async (req, res) => {
             return res.status(400).json({ message: "No enrollments found for this student" })
         }
 
-        const enrollStatus = await Promise.all( enrollCourse.map(async (Enroll) => {
+        const enrollStatus = await Promise.all(enrollCourse.map(async (Enroll) => {
             if (Enroll.status === "A") {
                 return { message: "Your request pending" };
             } else if (Enroll.status === "N") {
                 return { message: "Your request for enrollment rejected" };
             } else if (Enroll.status === "Y") {
-                    const enrollCourseId = Enroll.courseId.toString()
-                    const course = await Course.findById(enrollCourseId);
-                    return { course };
+                const enrollCourseId = Enroll.courseId.toString()
+                const course = await Course.findById(enrollCourseId);
+                return { course };
             }
         }))
         res.json(enrollStatus)
@@ -635,33 +791,7 @@ router.get("/getenrol/:id", async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 })
-// router.get("/getenrol/:id", async (req, res) => {
-//     try {
-//         const enrollCourseUser = await Enroll.find({ studentId: req.params.id })
-//         if (enrollCourseUser.length === 0) {
-//             return res.status(400).json({ message: "No enrollments found for this student" });
-//         }
-//         const EnrollStudentId = enrollCourseUser[0].studentId.toString()
 
-//         const SignUser = await signUp.findById(req.params.id)
-//         if (!SignUser) {
-//             return res.status(400).json({ message: "not find any user" })
-//         }
-//         if (EnrollStudentId !== SignUser.id) {
-//             return res.status(400).json({ message: "No enrollments found for this student" })
-//         }
-//         const Enrollment = enrollCourseUser.map((enrollment) => {
-//             const enrollCourseId = enrollment.courseId.toString()
-//             return Course.findById(enrollCourseId)
-//         })
-
-//         const EnrollCourse = await Promise.all(Enrollment)
-//         res.json(EnrollCourse)
-//     } catch (error) {
-//         console.log(error)
-//         res.status(500).json({ error: 'Internal Server Error' });
-//     }
-// })
 
 
 module.exports = router;

@@ -22,8 +22,19 @@ const schoolSchema = new Schema({
         type: String,
         require: true
     },
-    website:{
+    detail:{
         type: String
+    },
+    category:{
+        type: String,
+        require: true
+    },
+    image:{
+        type: String
+    },
+    fpNumber:{
+        type: String,
+        require: true
     }
 })
 
