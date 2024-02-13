@@ -215,7 +215,7 @@ router.get("/countuser", async (req, res) => {
     }
 })
 
-// add course
+// add category
 router.post("/addcategory", async (req, res) => {
     try {
         const { category } = req.body;
@@ -274,7 +274,7 @@ router.get("/getOnlyCategory", async (req, res) => {
 // add course
 router.post("/addcourse", upload.single("image"), async (req, res) => {
     try {
-        const { title, duration, level, description, categoryId, learning, content } = req.body;
+        const { title, duration, level, description, categoryId, learning, content, userId } = req.body;
         const checkCategory = await Category.findById(categoryId)
         if (!checkCategory) {
             return res.status(400).json({ message: "category is not present" })
@@ -302,7 +302,8 @@ router.post("/addcourse", upload.single("image"), async (req, res) => {
             image: img_url,
             categoryId,
             learning,
-            content
+            content,
+            userId,
         });
 
         res.json(newCourse);
@@ -325,6 +326,23 @@ router.get("/getAllCourses", async (req, res) => {
     } catch (error) {
         console.log(error)
         res.status(500).send("internal server error occured")
+    }
+})
+// check course throgh id
+router.get("/checkCourse/:id", async (req, res) => {
+    try {
+        const courseId = await Course.find({userId : req.params.id})
+        if (!courseId) {
+            res.status(400).json({ message: "course not exists" })
+        }
+        const categoryId = courseId.map((id)=>{
+            return id.categoryId.toString()
+        })
+        const categoryy = await Category.find({ _id : categoryId  })
+        res.json({ courseId, categoryy })
+    } catch (error) {
+        console.log(error)
+        res.send("internal server error occured")
     }
 })
 // get course throgh id
@@ -428,16 +446,39 @@ router.get("/countcourse", async (req, res) => {
 })
 
 // add teacher
-router.post("/addteacher", async (req, res) => {
+router.post("/addteacher", upload.single("image"), async (req, res) => {
     try {
-        const { name, email, number, qualification, experience, description } = req.body
+        const { name, email, number, qualification, experience, description, website, userId, youtube } = req.body
+
+        const checkUser = await signUp.findById(userId)
+        if (!checkUser) {
+            return res.status(400).json({ message: "user not found" })
+        }
+        let statusCheck;
+        if (checkUser.role === "admin") {
+            statusCheck = "Approved"
+        } else {
+            statusCheck = "Not Approved"
+        }
+
+        let img_url;
+        if (req.file) {
+            const upload = await cloudinary.uploader.upload(req.file.path);
+            img_url = upload.secure_url
+        }
+
         const newTeacher = await Teacher.create({
             name,
             email,
             number,
             qualification,
             experience,
-            description
+            description,
+            userId,
+            image: img_url,
+            status: statusCheck,
+            website,
+            youtube,
         })
         res.json(newTeacher)
     } catch (error) {
@@ -468,10 +509,37 @@ router.get("/getteacher/:id", async (req, res) => {
         res.send("internal server error occured")
     }
 })
-// update teacher throgh id
-router.put("/updateteacher/:id", async (req, res) => {
+// compare teacher throgh id
+router.get("/checkteacher/:id", async (req, res) => {
     try {
-        const { name, email, number, qualification, experience, description } = req.body
+        const TeacherId = await Teacher.find({ userId: req.params.id })
+        if(!TeacherId){
+            return res.status(400).json({message:"not find any teacher against this id"})
+        }
+        res.json(TeacherId)
+    } catch (error) {
+        console.log(error)
+        res.send("internal server error occured")
+    }
+})
+// update teacher status throgh id
+router.put("/acceptTeacher/:id", async (req, res) => {
+    try {
+        const AcceptedTeacher = await Teacher.findByIdAndUpdate(req.params.id, { status: "Approved" }, { new: true })
+
+        if (!AcceptedTeacher) {
+            return res.status(400).json({ message: "School not found" })
+        }
+        res.json({ message: "Teacher status updated to approve", AcceptedTeacher })
+    } catch (error) {
+        console.log(error)
+        res.send("internal server error occured")
+    }
+})
+// update teacher throgh id
+router.put("/updateteacher/:id", upload.single("image"), async (req, res) => {
+    try {
+        const { name, email, number, qualification, experience, description, website, youtube } = req.body
 
         const newTeacher = ({})
         if (name) {
@@ -492,10 +560,21 @@ router.put("/updateteacher/:id", async (req, res) => {
         if (description) {
             newTeacher.description = description
         }
+        if (website) {
+            newTeacher.website = website
+        }
+        if (youtube) {
+            newTeacher.youtube = youtube
+        }
+
+        if (req.file) {
+            const uploadResult = await cloudinary.uploader.upload(req.file.path);
+            newTeacher.image = uploadResult.secure_url;
+        }
 
         let teacherId = await Teacher.findById(req.params.id)
         if (!teacherId) {
-            res.status(400).json({ message: "course not exists" })
+            res.status(400).json({ message: "teacher not exists" })
         }
 
         teacherId = await Teacher.findByIdAndUpdate(req.params.id, { $set: newTeacher }, { new: true })
@@ -532,14 +611,25 @@ router.get("/countteacher", async (req, res) => {
 // add school
 router.post("/addschool", upload.single("image"), async (req, res) => {
     try {
-        const { name, email, number, city, address, detail, category, fpNumber } = req.body
+        const { name, email, number, city, address, detail, category, fpNumber, userId } = req.body
+
+        const checkUser = await signUp.findById(userId)
+        if (!checkUser) {
+            return res.status(400).json({ message: "user not found" })
+        }
+        let statusCheck;
+        if (checkUser.role === "admin") {
+            statusCheck = "Approved"
+        } else {
+            statusCheck = "Not Approved"
+        }
 
         const checkName = await School.find()
-        const CheckSchoolName = checkName.map((data)=>{
+        const CheckSchoolName = checkName.map((data) => {
             return data.name
         })
-        if(CheckSchoolName.includes(name)){
-            return res.status(400).json({message:"Scholl already regitered with this name"})
+        if (CheckSchoolName.includes(name)) {
+            return res.status(400).json({ message: "Scholl already regitered with this name" })
         }
 
         let img_url;
@@ -557,7 +647,9 @@ router.post("/addschool", upload.single("image"), async (req, res) => {
             address,
             detail,
             category,
-            fpNumber
+            fpNumber,
+            userId,
+            status: statusCheck
         })
 
         res.json(newSchool)
@@ -593,11 +685,25 @@ router.get("/getschool/:id", async (req, res) => {
 // get school throgh name
 router.get("/getschol/:name", async (req, res) => {
     try {
-        const schoolName = await School.findOne({name :req.params.name})
+        const schoolName = await School.findOne({ name: req.params.name })
         if (!schoolName) {
-          return res.status(400).json({ message: "school not exists" })
+            return res.status(400).json({ message: "school not exists" })
         }
         res.json(schoolName)
+    } catch (error) {
+        console.log(error)
+        res.send("internal server error occured")
+    }
+})
+// Accepted request for school
+router.put("/acceptSchool/:id", async (req, res) => {
+    try {
+        const AcceptedSchool = await School.findByIdAndUpdate(req.params.id, { status: "Approved" }, { new: true })
+
+        if (!AcceptedSchool) {
+            return res.status(400).json({ message: "School not found" })
+        }
+        res.json({ message: "School status uddated to approve", AcceptedSchool })
     } catch (error) {
         console.log(error)
         res.send("internal server error occured")

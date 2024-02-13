@@ -22,17 +22,25 @@ const schoolSchema = new Schema({
         type: String,
         require: true
     },
-    detail:{
+    detail: {
         type: String
     },
-    category:{
+    category: {
         type: String,
         require: true
     },
-    image:{
+    image: {
         type: String
     },
-    fpNumber:{
+    fpNumber: {
+        type: String,
+        require: true
+    },
+    userId: {
+        type: String,
+        ref: "User"
+    },
+    status:{
         type: String,
         require: true
     }

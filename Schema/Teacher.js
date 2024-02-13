@@ -25,6 +25,23 @@ const teacherSchema = new Schema({
     description: {
         type: String,
         require: true
+    },
+    website: {
+        type: String
+    },
+    userId: {
+        type: String,
+        require: true
+    },
+    status: {
+        type: String,
+        require: true
+    },
+    image: {
+        type: String
+    },
+    youtube: {
+        type: String
     }
 })
 

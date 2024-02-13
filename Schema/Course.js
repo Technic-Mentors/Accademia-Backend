@@ -32,6 +32,10 @@ const courseSchema = new Schema({
         ref: "Category",
         required: true
     },
+    userId: {
+        type: String,
+        ref: "User"
+    },
     image: {
         type: String
     }
