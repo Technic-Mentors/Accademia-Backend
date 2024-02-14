@@ -331,14 +331,14 @@ router.get("/getAllCourses", async (req, res) => {
 // check course throgh id
 router.get("/checkCourse/:id", async (req, res) => {
     try {
-        const courseId = await Course.find({userId : req.params.id})
+        const courseId = await Course.find({ userId: req.params.id })
         if (!courseId) {
             res.status(400).json({ message: "course not exists" })
         }
-        const categoryId = courseId.map((id)=>{
+        const categoryId = courseId.map((id) => {
             return id.categoryId.toString()
         })
-        const categoryy = await Category.find({ _id : categoryId  })
+        const categoryy = await Category.find({ _id: categoryId })
         res.json({ courseId, categoryy })
     } catch (error) {
         console.log(error)
@@ -450,6 +450,11 @@ router.post("/addteacher", upload.single("image"), async (req, res) => {
     try {
         const { name, email, number, qualification, experience, description, website, userId, youtube } = req.body
 
+        const checkTeacherEmail = await Teacher.findOne({email})
+        if (checkTeacherEmail) {
+            return res.status(400).json({ message: "Instructor with this email already exists" })
+        }
+
         const checkUser = await signUp.findById(userId)
         if (!checkUser) {
             return res.status(400).json({ message: "user not found" })
@@ -513,8 +518,8 @@ router.get("/getteacher/:id", async (req, res) => {
 router.get("/checkteacher/:id", async (req, res) => {
     try {
         const TeacherId = await Teacher.find({ userId: req.params.id })
-        if(!TeacherId){
-            return res.status(400).json({message:"not find any teacher against this id"})
+        if (!TeacherId) {
+            return res.status(400).json({ message: "not find any teacher against this id" })
         }
         res.json(TeacherId)
     } catch (error) {
@@ -539,14 +544,11 @@ router.put("/acceptTeacher/:id", async (req, res) => {
 // update teacher throgh id
 router.put("/updateteacher/:id", upload.single("image"), async (req, res) => {
     try {
-        const { name, email, number, qualification, experience, description, website, youtube } = req.body
+        const { name, number, qualification, experience, description, website, youtube } = req.body
 
         const newTeacher = ({})
         if (name) {
             newTeacher.name = name
-        }
-        if (email) {
-            newTeacher.email = email
         }
         if (number) {
             newTeacher.number = number
@@ -612,6 +614,11 @@ router.get("/countteacher", async (req, res) => {
 router.post("/addschool", upload.single("image"), async (req, res) => {
     try {
         const { name, email, number, city, address, detail, category, fpNumber, userId } = req.body
+
+        const checkSchoolEmail = await School.findOne({email})
+        if (checkSchoolEmail) {
+            return res.status(400).json({ message: "School with this email already exists" })
+        }
 
         const checkUser = await signUp.findById(userId)
         if (!checkUser) {
@@ -712,14 +719,11 @@ router.put("/acceptSchool/:id", async (req, res) => {
 // update course throgh id
 router.put("/updateschool/:id", upload.single("image"), async (req, res) => {
     try {
-        const { name, email, number, city, address, detail, category, fpNumber } = req.body
+        const { name, number, city, address, detail, category, fpNumber } = req.body
 
         const newSchool = ({})
         if (name) {
             newSchool.name = name
-        }
-        if (email) {
-            newSchool.email = email
         }
         if (number) {
             newSchool.number = number
