@@ -42,6 +42,15 @@ const teacherSchema = new Schema({
     },
     youtube: {
         type: String
+    },
+    fbUrl:{
+        type: String
+    },
+    instaUrl:{
+        type: String
+    },
+    twitterUrl:{
+        type: String
     }
 })
 

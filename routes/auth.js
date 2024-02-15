@@ -448,9 +448,9 @@ router.get("/countcourse", async (req, res) => {
 // add teacher
 router.post("/addteacher", upload.single("image"), async (req, res) => {
     try {
-        const { name, email, number, qualification, experience, description, website, userId, youtube } = req.body
+        const { name, email, number, qualification, experience, description, website, userId, youtube, twitterUrl, fbUrl, instaUrl } = req.body
 
-        const checkTeacherEmail = await Teacher.findOne({email})
+        const checkTeacherEmail = await Teacher.findOne({ email })
         if (checkTeacherEmail) {
             return res.status(400).json({ message: "Instructor with this email already exists" })
         }
@@ -484,6 +484,9 @@ router.post("/addteacher", upload.single("image"), async (req, res) => {
             status: statusCheck,
             website,
             youtube,
+            instaUrl,
+            fbUrl,
+            twitterUrl
         })
         res.json(newTeacher)
     } catch (error) {
@@ -544,7 +547,8 @@ router.put("/acceptTeacher/:id", async (req, res) => {
 // update teacher throgh id
 router.put("/updateteacher/:id", upload.single("image"), async (req, res) => {
     try {
-        const { name, number, qualification, experience, description, website, youtube } = req.body
+        const { name, number, qualification, experience, description, website, youtube,instaUrl,
+            fbUrl, twitterUrl } = req.body
 
         const newTeacher = ({})
         if (name) {
@@ -567,6 +571,15 @@ router.put("/updateteacher/:id", upload.single("image"), async (req, res) => {
         }
         if (youtube) {
             newTeacher.youtube = youtube
+        }
+        if(instaUrl){
+            newTeacher.instaUrl = instaUrl
+        }
+        if(fbUrl){
+            newTeacher.fbUrl = fbUrl
+        }
+        if(twitterUrl){
+            newTeacher.twitterUrl = twitterUrl
         }
 
         if (req.file) {
@@ -615,7 +628,7 @@ router.post("/addschool", upload.single("image"), async (req, res) => {
     try {
         const { name, email, number, city, address, detail, category, fpNumber, userId } = req.body
 
-        const checkSchoolEmail = await School.findOne({email})
+        const checkSchoolEmail = await School.findOne({ email })
         if (checkSchoolEmail) {
             return res.status(400).json({ message: "School with this email already exists" })
         }
