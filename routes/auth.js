@@ -5,6 +5,7 @@ const Course = require("../Schema/Course")
 const Teacher = require("../Schema/Teacher")
 const School = require("../Schema/School")
 const Enroll = require("../Schema/Enrollment")
+const Video = require("../Schema/Video")
 const bcrypt = require("bcrypt")
 const Signup = require("../Schema/Signup")
 const Category = require("../Schema/Category")
@@ -12,9 +13,6 @@ const multer = require("multer");
 const cloudinary = require("../Cloudinary");
 // img storage path
 const imgconfig = multer.diskStorage({
-    // destination:(req,file,callback)=>{
-    //     callback(null,"./uploads")
-    // },
     filename: (req, file, callback) => {
         callback(null, `image-${Date.now()}.${file.originalname}`)
     }
@@ -33,6 +31,27 @@ const upload = multer({
     storage: imgconfig,
     fileFilter: isImage
 })
+
+
+const videoConfig = multer.diskStorage({
+    filename: (req, file, callback) => {
+        callback(null, `video-${Date.now()}.${file.originalname}`);
+    }
+});
+
+// Video filter
+const isVideo = (req, file, callback) => {
+    if (file.mimetype.startsWith("video")) {
+        callback(null, true);
+    } else {
+        callback(new Error("Only videos are allowed"));
+    }
+};
+
+const videoUpload = multer({
+    storage: videoConfig,
+    fileFilter: isVideo
+});
 
 // Api for adding user
 router.post("/adduser", async (req, res) => {
@@ -173,6 +192,37 @@ router.get("/getuser/:id", async (req, res) => {
             res.status(400).json({ message: "user not exists" })
         }
         res.json(userId)
+    } catch (error) {
+        console.log(error)
+        res.send("internal server error occured")
+    }
+})
+// update user through id
+router.put("/updateUser/:id", async (req, res) => {
+    try {
+        const { password, name, role, number } = req.body;
+        const checkUser = await signUp.findById(req.params.id)
+        if (!checkUser) {
+            return res.status(400).json({ message: "User not found" })
+        }
+
+        let newUser = {}
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            newUser.password = hashedPassword;
+        }
+        if (name) {
+            newUser.name = name
+        }
+        if (role) {
+            newUser.role = role
+        }
+        if (number) {
+            newUser.number = number
+        }
+
+        const updateUser = await signUp.findByIdAndUpdate(req.params.id, { $set: newUser }, { new: true })
+        res.json(updateUser)
     } catch (error) {
         console.log(error)
         res.send("internal server error occured")
@@ -547,7 +597,7 @@ router.put("/acceptTeacher/:id", async (req, res) => {
 // update teacher throgh id
 router.put("/updateteacher/:id", upload.single("image"), async (req, res) => {
     try {
-        const { name, number, qualification, experience, description, website, youtube,instaUrl,
+        const { name, number, qualification, experience, description, website, youtube, instaUrl,
             fbUrl, twitterUrl } = req.body
 
         const newTeacher = ({})
@@ -572,13 +622,13 @@ router.put("/updateteacher/:id", upload.single("image"), async (req, res) => {
         if (youtube) {
             newTeacher.youtube = youtube
         }
-        if(instaUrl){
+        if (instaUrl) {
             newTeacher.instaUrl = instaUrl
         }
-        if(fbUrl){
+        if (fbUrl) {
             newTeacher.fbUrl = fbUrl
         }
-        if(twitterUrl){
+        if (twitterUrl) {
             newTeacher.twitterUrl = twitterUrl
         }
 
@@ -915,7 +965,45 @@ router.get("/getenrol/:id", async (req, res) => {
     }
 })
 
+// Add pdf books
+router.post("/addVideo", videoUpload.single("video"), async (req, res) => {
+    try {
+        const { userId, title, name } = req.body;
 
+        const uniqueTitle = await Video.findOne({ title });
+        if (uniqueTitle) {
+            return res.status(400).json({ message: "Video with this title already exists" });
+        }
+
+        let videoUrl;
+        if (req.file) {
+            const upload = await cloudinary.uploader.upload(req.file.path, { resource_type: "video" });
+            videoUrl = upload.secure_url;
+        }
+
+        const video = await Video.create({
+            name,
+            title,
+            userId,
+            video: videoUrl,
+        });
+
+        res.json(video);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+router.get("/getVideo", async (req, res) => {
+    try {
+        const videoLectures = await Video.find()
+        res.json(videoLectures)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+})
 
 module.exports = router;
 
