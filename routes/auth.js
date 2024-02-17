@@ -1070,5 +1070,18 @@ router.put("/updateVideo/:id", videoUpload.single("video"), async (req, res) => 
     }
 })
 
+router.get("/enrlRequests", async (req, res) => {
+    try {
+      const requests = await Enroll.find()
+        .populate('studentId', 'name')
+        .populate('courseId', 'title');
+  
+      res.json( requests );
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+  
 module.exports = router;
 
