@@ -1032,6 +1032,43 @@ router.get("/getVideo", async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 })
+router.get("/getVideo/:id", async (req, res) => {
+    try {
+        const videoLectures = await Video.findById(req.params.id)
+        if(!videoLectures){
+            return res.status(400).json({message:"Not found any video"})
+        }
+        res.json(videoLectures)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+})
+router.put("/updateVideo/:id", videoUpload.single("video"), async (req, res) => {
+    try {
+        const {title} = req.body
+        const checkVideo = await Video.findById(req.params.id)
+        if(!checkVideo){
+            return res.status(400).json({message:"Video not found"})
+        }
+
+        let newVideo = {}
+        if(title){
+            newVideo.title = title
+        }
+
+        if (req.file) {
+            const upload = await cloudinary.uploader.upload(req.file.path, { resource_type: "video" });
+            newVideo.video = upload.secure_url;
+        }
+
+        const updateVideo = await Video.findByIdAndUpdate(req.params.id, {$set: newVideo}, {new: true})
+        res.json(updateVideo)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+})
 
 module.exports = router;
 
