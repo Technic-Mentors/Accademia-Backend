@@ -594,6 +594,20 @@ router.put("/acceptTeacher/:id", async (req, res) => {
         res.send("internal server error occured")
     }
 })
+// reject teacher status throgh id
+router.put("/rejectTeacher/:id", async (req, res) => {
+    try {
+        const RejectTeacher = await Teacher.findByIdAndUpdate(req.params.id, { status: "Rejected" }, { new: true })
+
+        if (!RejectTeacher) {
+            return res.status(400).json({ message: "School not found" })
+        }
+        res.json({ message: "Teacher request rejected", RejectTeacher })
+    } catch (error) {
+        console.log(error)
+        res.send("internal server error occured")
+    }
+})
 // update teacher throgh id
 router.put("/updateteacher/:id", upload.single("image"), async (req, res) => {
     try {
@@ -774,6 +788,20 @@ router.put("/acceptSchool/:id", async (req, res) => {
             return res.status(400).json({ message: "School not found" })
         }
         res.json({ message: "School status uddated to approve", AcceptedSchool })
+    } catch (error) {
+        console.log(error)
+        res.send("internal server error occured")
+    }
+})
+// reject request for school
+router.put("/rejectSchool/:id", async (req, res) => {
+    try {
+        const RejectSchool = await School.findByIdAndUpdate(req.params.id, { status: "Rejected" }, { new: true })
+
+        if (!RejectSchool) {
+            return res.status(400).json({ message: "School not found" })
+        }
+        res.json({ message: "School approval request rejected", RejectSchool })
     } catch (error) {
         console.log(error)
         res.send("internal server error occured")
