@@ -698,11 +698,11 @@ router.post("/addschool", upload.single("image"), async (req, res) => {
         }
         const checkSchoolNumber = await School.findOne({ number })
         if (checkSchoolNumber) {
-            return res.status(400).json({ message: "This number already used" })
+            return res.status(400).json({ message: "This number already exist" })
         }
         const checkSchoolFpNumber = await School.findOne({ fpNumber })
         if (checkSchoolFpNumber) {
-            return res.status(400).json({ message: "This number already used" })
+            return res.status(400).json({ message: "This number already exist" })
         }
 
         const checkUser = await signUp.findById(userId)
