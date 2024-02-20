@@ -909,32 +909,18 @@ router.post('/enrollments', async (req, res) => {
     }
 });
 
-router.get("/enrollRequests", async (req, res) => {
+router.get("/enrlRequests", async (req, res) => {
     try {
-        const requests = await Enroll.find()
-
-        const studentsName = requests.map((Names) => {
-            const StudentsIds = Names.studentId.toString()
-            return Signup.findById(StudentsIds, "name")
-        })
-        const AllStudentNames = await Promise.all(studentsName)
-        const courseName = requests.map((titles) => {
-            const CourseIds = titles.courseId.toString()
-            return Course.findById(CourseIds, "title")
-        })
-        const AllCourseTitles = await Promise.all(courseName)
-        const result = {
-            requests,
-            AllStudentNames,
-            AllCourseTitles
-        };
-
-        res.json(result);
+      const requests = await Enroll.find()
+        .populate('studentId', 'name')
+        .populate('courseId', 'title');
+  
+      res.json( requests );
     } catch (error) {
-        console.log(error)
-        res.status(500).json({ error: 'Internal Server Error' });
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
     }
-})
+  });
 
 router.put("/acceptStatus/:id", async (req, res) => {
     try {
@@ -1070,18 +1056,7 @@ router.put("/updateVideo/:id", videoUpload.single("video"), async (req, res) => 
     }
 })
 
-router.get("/enrlRequests", async (req, res) => {
-    try {
-      const requests = await Enroll.find()
-        .populate('studentId', 'name')
-        .populate('courseId', 'title');
-  
-      res.json( requests );
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  });
+
   
 module.exports = router;
 
