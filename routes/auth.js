@@ -176,8 +176,27 @@ router.post("/signin", async (req, res) => {
         res.status(500).send("internal server error occured")
     }
 })
-
-// get all users
+// forgot password 
+router.put("/forgotPassword", async (req, res) => {
+    try {
+        const { email, password } = req.body
+        const checkUser = await signUp.findOne({ email })
+        if (!checkUser) {
+            return res.status(400).json({ message: "Not found any user with this email" })
+        }
+        let newPassword = {}
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password,10)
+            newPassword.password = hashedPassword
+        }
+        const changePassword = await signUp.findByIdAndUpdate(checkUser.id,{ $set: newPassword }, {new: true})
+        res.json(changePassword)
+    } catch (error) {
+        console.log(error)
+        res.status(500).send("internal server error occured")
+    }
+})
+// get all usersforgotPassword
 router.get("/allusers", async (req, res) => {
     try {
         const allusers = await signUp.find()
@@ -923,16 +942,16 @@ router.post('/enrollments', async (req, res) => {
 
 router.get("/enrlRequests", async (req, res) => {
     try {
-      const requests = await Enroll.find()
-        .populate('studentId', 'name')
-        .populate('courseId', 'title');
-  
-      res.json( requests );
+        const requests = await Enroll.find()
+            .populate('studentId', 'name')
+            .populate('courseId', 'title');
+
+        res.json(requests);
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
-  });
+});
 
 router.put("/acceptStatus/:id", async (req, res) => {
     try {
@@ -1033,8 +1052,8 @@ router.get("/getVideo", async (req, res) => {
 router.get("/getVideo/:id", async (req, res) => {
     try {
         const videoLectures = await Video.findById(req.params.id)
-        if(!videoLectures){
-            return res.status(400).json({message:"Not found any video"})
+        if (!videoLectures) {
+            return res.status(400).json({ message: "Not found any video" })
         }
         res.json(videoLectures)
     } catch (error) {
@@ -1044,14 +1063,14 @@ router.get("/getVideo/:id", async (req, res) => {
 })
 router.put("/updateVideo/:id", videoUpload.single("video"), async (req, res) => {
     try {
-        const {title} = req.body
+        const { title } = req.body
         const checkVideo = await Video.findById(req.params.id)
-        if(!checkVideo){
-            return res.status(400).json({message:"Video not found"})
+        if (!checkVideo) {
+            return res.status(400).json({ message: "Video not found" })
         }
 
         let newVideo = {}
-        if(title){
+        if (title) {
             newVideo.title = title
         }
 
@@ -1060,7 +1079,7 @@ router.put("/updateVideo/:id", videoUpload.single("video"), async (req, res) => 
             newVideo.video = upload.secure_url;
         }
 
-        const updateVideo = await Video.findByIdAndUpdate(req.params.id, {$set: newVideo}, {new: true})
+        const updateVideo = await Video.findByIdAndUpdate(req.params.id, { $set: newVideo }, { new: true })
         res.json(updateVideo)
     } catch (error) {
         console.log(error)
@@ -1069,6 +1088,6 @@ router.put("/updateVideo/:id", videoUpload.single("video"), async (req, res) => 
 })
 
 
-  
+
 module.exports = router;
 
