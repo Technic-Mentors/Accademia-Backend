@@ -99,6 +99,11 @@ router.post("/signup", async (req, res) => {
         if (checkEmail) {
             return res.status(400).json({ message: "user with this email already exists" })
         }
+        // check password
+        const checkNumber = await signUp.findOne({ number })
+        if (checkNumber) {
+            return res.status(400).json({ message: "This number already used" })
+        }
         // confirm password
         if (password !== confirmPassword) {
             return res.status(400).json({ message: "Password does not match" })
