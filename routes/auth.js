@@ -526,7 +526,7 @@ router.get("/countcourse", async (req, res) => {
 // add teacher
 router.post("/addteacher", upload.single("image"), async (req, res) => {
     try {
-        const { name, email, number, qualification, experience, description, website, userId, youtube, twitterUrl, fbUrl, instaUrl } = req.body
+        const { name, email, number, qualification, experience, description, website, userId, youtube, twitterUrl, fbUrl, instaUrl,experties } = req.body
 
         const checkTeacherEmail = await Teacher.findOne({ email })
         if (checkTeacherEmail) {
@@ -563,6 +563,7 @@ router.post("/addteacher", upload.single("image"), async (req, res) => {
             website,
             youtube,
             instaUrl,
+            experties,
             fbUrl,
             twitterUrl
         })
@@ -640,7 +641,7 @@ router.put("/rejectTeacher/:id", async (req, res) => {
 router.put("/updateteacher/:id", upload.single("image"), async (req, res) => {
     try {
         const { name, number, qualification, experience, description, website, youtube, instaUrl,
-            fbUrl, twitterUrl } = req.body
+            fbUrl, twitterUrl,experties } = req.body
 
         const newTeacher = ({})
         if (name) {
@@ -660,6 +661,9 @@ router.put("/updateteacher/:id", upload.single("image"), async (req, res) => {
         }
         if (website) {
             newTeacher.website = website
+        }
+        if (experties) {
+            newTeacher.experties = experties
         }
         if (youtube) {
             newTeacher.youtube = youtube

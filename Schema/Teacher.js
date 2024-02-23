@@ -37,19 +37,23 @@ const teacherSchema = new Schema({
         type: String,
         require: true
     },
+    experties: {
+        type: String,
+        require: true
+    },
     image: {
         type: String
     },
     youtube: {
         type: String
     },
-    fbUrl:{
+    fbUrl: {
         type: String
     },
-    instaUrl:{
+    instaUrl: {
         type: String
     },
-    twitterUrl:{
+    twitterUrl: {
         type: String
     }
 })
