@@ -13,8 +13,7 @@ const enrollSchema = new Schema({
         required: true
     },
     description: {
-        type: String,
-        required: true
+        type: String
     },
     status: {
         type: String
