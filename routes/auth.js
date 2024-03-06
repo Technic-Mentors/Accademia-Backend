@@ -181,6 +181,19 @@ router.post("/signin", async (req, res) => {
         res.status(500).send("internal server error occured")
     }
 })
+//  sigin with email
+router.get("/signin/:email", async (req, res) => {
+    try {
+        const checkUser = await signUp.findOne({email:req.params.email})
+        if (!checkUser) {
+            return res.status(400).json({ message: "user with this email not found" })
+        }
+        res.json(checkUser)
+    } catch (error) {
+        console.log(error)
+        res.status(500).send("internal server error occured")
+    }
+})
 // forgot password 
 router.put("/forgotPassword", async (req, res) => {
     try {
@@ -191,10 +204,10 @@ router.put("/forgotPassword", async (req, res) => {
         }
         let newPassword = {}
         if (password) {
-            const hashedPassword = await bcrypt.hash(password,10)
+            const hashedPassword = await bcrypt.hash(password, 10)
             newPassword.password = hashedPassword
         }
-        const changePassword = await signUp.findByIdAndUpdate(checkUser.id,{ $set: newPassword }, {new: true})
+        const changePassword = await signUp.findByIdAndUpdate(checkUser.id, { $set: newPassword }, { new: true })
         res.json(changePassword)
     } catch (error) {
         console.log(error)
@@ -526,7 +539,7 @@ router.get("/countcourse", async (req, res) => {
 // add teacher
 router.post("/addteacher", upload.single("image"), async (req, res) => {
     try {
-        const { name, email, number, qualification, experience, description, website, userId, youtube, twitterUrl, fbUrl, instaUrl,experties } = req.body
+        const { name, email, number, qualification, experience, description, website, userId, youtube, twitterUrl, fbUrl, instaUrl, experties } = req.body
 
         const checkTeacherEmail = await Teacher.findOne({ email })
         if (checkTeacherEmail) {
@@ -641,7 +654,7 @@ router.put("/rejectTeacher/:id", async (req, res) => {
 router.put("/updateteacher/:id", upload.single("image"), async (req, res) => {
     try {
         const { name, number, qualification, experience, description, website, youtube, instaUrl,
-            fbUrl, twitterUrl,experties } = req.body
+            fbUrl, twitterUrl, experties } = req.body
 
         const newTeacher = ({})
         if (name) {
