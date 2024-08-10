@@ -1,3 +1,4 @@
+const { type } = require("@testing-library/user-event/dist/type")
 const mongoose = require("mongoose")
 const { Schema } = mongoose
 
@@ -20,12 +21,10 @@ const courseSchema = new Schema({
         required: true
     },
     learning: {
-        type: String,
-        required: true
+        type: String
     },
     content: {
-        type: String,
-        required: true
+        type: String
     },
     categoryId: {
         type: Schema.Types.ObjectId,
@@ -37,6 +36,16 @@ const courseSchema = new Schema({
         ref: "User"
     },
     image: {
+        type: String
+    },
+
+    moduleName1: {
+        type: String
+    },
+    moduleName2: {
+        type: String
+    }, 
+    instructorName: {
         type: String
     }
 })

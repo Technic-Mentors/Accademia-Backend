@@ -365,7 +365,7 @@ router.get("/getOnlyCategory", async (req, res) => {
 // add course
 router.post("/addcourse", upload.single("image"), async (req, res) => {
     try {
-        const { title, duration, level, description, categoryId, learning, content, userId } = req.body;
+        const { title, duration, level, description, categoryId, learning, content, userId, moduleName1, moduleName2, instructorName } = req.body;
         const checkCategory = await Category.findById(categoryId)
         if (!checkCategory) {
             return res.status(400).json({ message: "category is not present" })
@@ -395,6 +395,9 @@ router.post("/addcourse", upload.single("image"), async (req, res) => {
             learning,
             content,
             userId,
+            moduleName1, 
+            moduleName2, 
+            instructorName
         });
 
         res.json(newCourse);

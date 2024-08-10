@@ -44,6 +44,9 @@ const teacherSchema = new Schema({
     image: {
         type: String
     },
+    resume: {
+        type: String
+    },
     youtube: {
         type: String
     },
