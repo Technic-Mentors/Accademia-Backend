@@ -47,6 +47,12 @@ const courseSchema = new Schema({
     }, 
     instructorName: {
         type: String
+    },
+    days: {
+        type: String
+    },
+    timeSlot: {
+        type: String
     }
 })
 

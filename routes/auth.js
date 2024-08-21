@@ -365,7 +365,7 @@ router.get("/getOnlyCategory", async (req, res) => {
 // add course
 router.post("/addcourse", upload.single("image"), async (req, res) => {
     try {
-        const { title, duration, level, description, categoryId, learning, content, userId, moduleName1, moduleName2, instructorName } = req.body;
+        const { title, duration, level, description, categoryId, learning, content, userId, moduleName1, moduleName2, instructorName, days, timeSlot } = req.body;
         const checkCategory = await Category.findById(categoryId)
         if (!checkCategory) {
             return res.status(400).json({ message: "category is not present" })
@@ -397,7 +397,9 @@ router.post("/addcourse", upload.single("image"), async (req, res) => {
             userId,
             moduleName1, 
             moduleName2, 
-            instructorName
+            instructorName, 
+            days,
+            timeSlot
         });
 
         res.json(newCourse);
@@ -473,11 +475,26 @@ router.get("/getcorse/:title", async (req, res) => {
 // update course throgh id
 router.put("/updatecourse/:id", upload.single("image"), async (req, res) => {
     try {
-        const { title, duration, level, description, categoryId, learning, content } = req.body
+        const { title, duration, level, description, categoryId, learning, content, days, timeSlot, moduleName1, moduleName2, instructorName } = req.body
 
         const newCourse = ({})
         if (title) {
             newCourse.title = title
+        }
+        if (days) {
+            newCourse.days = days
+        }
+        if (timeSlot) {
+            newCourse.timeSlot = timeSlot
+        }
+        if (moduleName1) {
+            newCourse.moduleName1 = moduleName1
+        }
+        if (moduleName2) {
+            newCourse.moduleName2 = moduleName2
+        }
+        if (instructorName) {
+            newCourse.instructorName = instructorName
         }
         if (duration) {
             newCourse.duration = duration
