@@ -1,4 +1,4 @@
-const mongoose = require("mongoose")
+import mongoose from "mongoose"
 const { Schema } = mongoose
 
 const enrollSchema = new Schema({
@@ -20,4 +20,4 @@ const enrollSchema = new Schema({
     }
 })
 
-module.exports = mongoose.model("Enroll", enrollSchema)
+export default mongoose.model("Enroll", enrollSchema);

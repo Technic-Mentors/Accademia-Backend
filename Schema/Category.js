@@ -1,4 +1,4 @@
-const mongoose = require("mongoose")
+import mongoose from "mongoose"
 const { Schema } = mongoose
 
 const cateSchema = new Schema({
@@ -8,4 +8,4 @@ const cateSchema = new Schema({
     }
 })
 
-module.exports = mongoose.model("Category", cateSchema)
+export default mongoose.model("Category", cateSchema)

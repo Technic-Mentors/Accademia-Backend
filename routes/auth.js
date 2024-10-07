@@ -7,7 +7,6 @@ const School = require("../Schema/School")
 const Enroll = require("../Schema/Enrollment")
 const Video = require("../Schema/Video")
 const bcrypt = require("bcrypt")
-const Signup = require("../Schema/Signup")
 const Category = require("../Schema/Category")
 const multer = require("multer");
 const cloudinary = require("../Cloudinary");
@@ -23,7 +22,7 @@ const isImage = (req, file, callback) => {
     if (file.mimetype.startsWith("image")) {
         callback(null, true)
     } else {
-        callback(new Error("only images is allow"))
+        callback(new Error("only images are allowed"))
     }
 }
 
@@ -184,7 +183,7 @@ router.post("/signin", async (req, res) => {
 //  sigin with email
 router.get("/signin/:email", async (req, res) => {
     try {
-        const checkUser = await signUp.findOne({email:req.params.email})
+        const checkUser = await signUp.findOne({ email: req.params.email })
         if (!checkUser) {
             return res.status(400).json({ message: "user with this email not found" })
         }
@@ -351,16 +350,7 @@ router.delete("/delcategory/:id", async (req, res) => {
         res.status(500).send("Internal server error occurred");
     }
 });
-//  get only category
-router.get("/getOnlyCategory", async (req, res) => {
-    try {
-        const allCategory = await Category.find({}, "category")
-        res.send(allCategory)
-    } catch (error) {
-        console.log(error);
-        res.status(500).send("Internal server error occurred");
-    }
-})
+//  get only categor
 
 // add course
 router.post("/addcourse", upload.single("image"), async (req, res) => {
@@ -395,9 +385,9 @@ router.post("/addcourse", upload.single("image"), async (req, res) => {
             learning,
             content,
             userId,
-            moduleName1, 
-            moduleName2, 
-            instructorName, 
+            moduleName1,
+            moduleName2,
+            instructorName,
             days,
             timeSlot
         });

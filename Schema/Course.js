@@ -1,5 +1,5 @@
 
-const mongoose = require("mongoose")
+import mongoose from "mongoose"
 const { Schema } = mongoose
 
 const courseSchema = new Schema({
@@ -44,7 +44,7 @@ const courseSchema = new Schema({
     },
     moduleName2: {
         type: String
-    }, 
+    },
     instructorName: {
         type: String
     },
@@ -53,7 +53,11 @@ const courseSchema = new Schema({
     },
     timeSlot: {
         type: String
-    }
+    },
+    lessons: [{
+        type: Schema.Types.ObjectId,
+        ref: "Lesson"
+    }]
 })
 
-module.exports = mongoose.model("Course", courseSchema)
+export default mongoose.model("Course", courseSchema);
