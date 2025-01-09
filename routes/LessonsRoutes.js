@@ -18,6 +18,7 @@ router.post("/addLesson", errorHandling(async (req, res) => {
     const newLesson = await Lessons.create({
         title, description, videoUrls, courseId
     })
+
     checkCourse.lessons.push(newLesson._id)
     const updateCourse = await checkCourse.save()
     console.log(updateCourse);

@@ -16,14 +16,10 @@ const courseSchema = new Schema({
         type: String,
         required: true
     },
-    description: {
-        type: String,
-        required: true
-    },
-    learning: {
+    name: {
         type: String
     },
-    content: {
+    description: {
         type: String
     },
     categoryId: {
@@ -31,27 +27,20 @@ const courseSchema = new Schema({
         ref: "Category",
         required: true
     },
+    outcome: {
+        type: [String]
+    },
+    prereqs: [{
+        type: String
+    }],
+    target: [{
+        type: String
+    }],
     userId: {
-        type: String,
+        type: Schema.Types.ObjectId,
         ref: "User"
     },
     image: {
-        type: String
-    },
-
-    moduleName1: {
-        type: String
-    },
-    moduleName2: {
-        type: String
-    },
-    instructorName: {
-        type: String
-    },
-    days: {
-        type: String
-    },
-    timeSlot: {
         type: String
     },
     lessons: [{

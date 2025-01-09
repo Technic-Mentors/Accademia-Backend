@@ -1,7 +1,7 @@
 import cloudinary from 'cloudinary';
 import dotenv from 'dotenv';
 
-dotenv.config();  // Correct way to load environment variables
+dotenv.config();
 
 const cloudinaryV2 = cloudinary.v2;
 
@@ -11,4 +11,4 @@ cloudinaryV2.config({
     api_secret: process.env.APISECRET
 });
 
-export default cloudinaryV2;  // ES Module export
+export default cloudinaryV2;

@@ -16,30 +16,53 @@ router.use((err, req, res, next) => {
 
 // add course
 router.post("/addcourse", upload.single("image"), errorHandling(async (req, res) => {
-
-    const { title, duration, level, description, categoryId, learning, content, userId, moduleName1, moduleName2, instructorName, days, timeSlot } = req.body;
+    const {
+        title,
+        duration,
+        description,
+        level,
+        name,
+        categoryId,
+        outcome = [],
+        prereqs = [],
+        target = [],
+        userId,
+    } = req.body;
 
     const [checkCategory, CourseTitle] = await Promise.all([
         Category.findById(categoryId),
         Course.findOne({ title })
-    ])
+    ]);
 
-    if (!checkCategory) return res.status(400).json({ message: "category is not present" })
+    if (!checkCategory) {
+        return res.status(400).json({ message: "Category not found" });
+    }
 
-    if (CourseTitle) return res.status(400).json({ message: "Course with this title already exists" })
+    if (CourseTitle) {
+        return res.status(400).json({ message: "Course with this title already exists" });
+    }
 
     let img_url;
     if (req.file) {
         const upload = await cloudinary.uploader.upload(req.file.path);
-        img_url = upload.secure_url
+        img_url = upload.secure_url;
     }
 
     const newCourse = await Course.create({
-        title, duration, level, description, image: img_url, categoryId, learning, content, userId, moduleName1, moduleName2, instructorName, days, timeSlot
+        title,
+        duration,
+        level,
+        name,
+        description,
+        categoryId,
+        outcome,
+        prereqs,
+        target,
+        userId,
+        image: img_url,
     });
 
-    res.json(newCourse);
-
+    res.status(201).json(newCourse);
 }));
 
 // {get courses}
