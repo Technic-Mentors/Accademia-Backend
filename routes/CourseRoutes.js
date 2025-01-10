@@ -23,11 +23,17 @@ router.post("/addcourse", upload.single("image"), errorHandling(async (req, res)
         level,
         name,
         categoryId,
-        outcome = [],
-        prereqs = [],
-        target = [],
+        prereqs,
         userId,
     } = req.body;
+
+    const outcome = Array.isArray(req.body.outcome) && req.body.outcome[0] !== '' ? req.body.outcome : [];
+    const target = Array.isArray(req.body.target) && req.body.target[0] !== '' ? req.body.target : [];
+
+    // Validate required fields
+    if (!title || !duration || !level || !categoryId || !description || outcome.length === 0 || target.length === 0) {
+        return res.status(400).json({ message: "Fields with * should be filled" });
+    }
 
     const [checkCategory, CourseTitle] = await Promise.all([
         Category.findById(categoryId),
