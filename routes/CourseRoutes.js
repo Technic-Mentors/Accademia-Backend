@@ -121,21 +121,18 @@ router.get("/getcorse/:title", errorHandling(async (req, res) => {
 
 // {update}
 router.put("/updatecourse/:id", upload.single("image"), errorHandling(async (req, res) => {
-    const { title, duration, level, description, categoryId, learning, content, days, timeSlot, moduleName1, moduleName2, instructorName } = req.body
+    const { title, duration, description, level, name, categoryId, prereqs, target, outcome } = req.body
 
     const newCourse = ({})
     if (title) newCourse.title = title
-    if (days) newCourse.days = days
-    if (timeSlot) newCourse.timeSlot = timeSlot
-    if (moduleName1) newCourse.moduleName1 = moduleName1
-    if (moduleName2) newCourse.moduleName2 = moduleName2
-    if (instructorName) newCourse.instructorName = instructorName
     if (duration) newCourse.duration = duration
     if (level) newCourse.level = level
     if (description) newCourse.description = description
     if (categoryId) newCourse.categoryId = categoryId
-    if (learning) newCourse.learning = learning
-    if (content) newCourse.content = content
+    if (name) newCourse.name = name
+    if (prereqs) newCourse.prereqs = prereqs
+    if (target) newCourse.target = target
+    if (outcome) newCourse.outcome = outcome
 
     if (req.file) {
         const uploadResult = await cloudinary.uploader.upload(req.file.path);

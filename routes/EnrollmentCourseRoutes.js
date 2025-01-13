@@ -19,6 +19,8 @@ router.get("/nametitle/:id", async (req, res) => {
 // Enroll courses 
 router.post('/enrollments', async (req, res) => {
     const { courseId, studentId, description } = req.body
+    console.log(courseId, studentId, description);
+
     const [studentExists, courseExists] = await Promise.all([
         signUp.findById(studentId),
         Course.findById(courseId)
@@ -84,6 +86,8 @@ router.get("/getenrol/:id", async (req, res) => {
         } else if (Enroll.status === "Y") {
             const enrollCourseId = Enroll.courseId.toString()
             const course = await Course.findById(enrollCourseId);
+            console.log(course);
+
             return { course };
         }
     }))
