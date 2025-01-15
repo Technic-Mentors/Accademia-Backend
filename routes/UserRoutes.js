@@ -47,7 +47,7 @@ router.post("/adduser", upload.single("image"), errorHandling(async (req, res) =
 }))
 
 // Api for signup
-router.post("/signup", errorHandling(async (req, res) => {
+router.post("/signup", upload.single("image"), errorHandling(async (req, res) => {
     const { email, password, confirmPassword, name, role, number, institute } = req.body;
 
     const [checkEmail, checkNumber] = await Promise.all([
@@ -62,6 +62,11 @@ router.post("/signup", errorHandling(async (req, res) => {
     if (password !== confirmPassword) return res.status(400).json({ message: "Password does not match" })
 
     const hashPasword = await bcrypt.hash(password, 10)
+    let img_url;
+    if (req.file) {
+        const uploadImage = await cloudinary.uploader.upload(req.file.path)
+        img_url = uploadImage.secure_url
+    }
 
     const newSignUser = await signUp.create({
         name,
@@ -69,7 +74,8 @@ router.post("/signup", errorHandling(async (req, res) => {
         password: hashPasword,
         role,
         number,
-        institute
+        institute,
+        image: img_url
     })
     res.status(200).json(newSignUser);
 }))
