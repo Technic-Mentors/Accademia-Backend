@@ -2,6 +2,8 @@ import express from "express"
 import bcrypt from "bcrypt"
 import signUp from "../Schema/Signup.js"
 import errorHandling from "../MidleWares/ErrorHandling.js"
+import upload from "../MidleWares/ImageFilter.js"
+import cloudinary from "../Cloudinary.js"
 const router = express.Router()
 
 router.use((err, req, res, next) => {
@@ -9,7 +11,7 @@ router.use((err, req, res, next) => {
     next(err)
 });
 
-router.post("/adduser", errorHandling(async (req, res) => {
+router.post("/adduser", upload.single("image"), errorHandling(async (req, res) => {
     const { email, password, role, confirmPassword, name, number } = req.body
 
     const checkUserr = await signUp.findOne({ email })
@@ -25,6 +27,12 @@ router.post("/adduser", errorHandling(async (req, res) => {
         return res.status(400).json({ message: "Password does not match" })
     }
 
+    let img_url;
+    if (req.file) {
+        const uploadImage = await cloudinary.uploader.upload(req.file.path)
+        img_url = uploadImage.secure_url
+    }
+
     const hashPassword = await bcrypt.hash(password, 10)
 
     const newUserr = await signUp.create({
@@ -32,7 +40,8 @@ router.post("/adduser", errorHandling(async (req, res) => {
         email,
         password: hashPassword,
         role,
-        number
+        number,
+        image: img_url
     })
     res.json(newUserr)
 }))
@@ -143,7 +152,7 @@ router.get("/getuser/:id", errorHandling(async (req, res) => {
 }))
 
 // {update}
-router.put("/updateUser/:id", errorHandling(async (req, res) => {
+router.put("/updateUser/:id", upload.single("image"), errorHandling(async (req, res) => {
     const { password, name, role, number } = req.body;
     const checkUser = await signUp.findById(req.params.id)
     if (!checkUser) {
@@ -158,6 +167,10 @@ router.put("/updateUser/:id", errorHandling(async (req, res) => {
     if (name) newUser.name = name
     if (role) newUser.role = role
     if (number) newUser.number = number
+    if (req.file) {
+        const uploadImage = await cloudinary.uploader.upload(req.file.path)
+        newUser.image = uploadImage.secure_url
+    }
 
     const updateUser = await signUp.findByIdAndUpdate(req.params.id, { $set: newUser }, { new: true })
     res.json(updateUser)
