@@ -159,17 +159,14 @@ router.get("/getuser/:id", errorHandling(async (req, res) => {
 
 // {update}
 router.put("/updateUser/:id", upload.single("image"), errorHandling(async (req, res) => {
-    const { password, name, role, number } = req.body;
+    const { name, role, number } = req.body;
     const checkUser = await signUp.findById(req.params.id)
     if (!checkUser) {
         return res.status(400).json({ message: "User not found" })
     }
 
     let newUser = {}
-    if (password) {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        newUser.password = hashedPassword;
-    }
+
     if (name) newUser.name = name
     if (role) newUser.role = role
     if (number) newUser.number = number
