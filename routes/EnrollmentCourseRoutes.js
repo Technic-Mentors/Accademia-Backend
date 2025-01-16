@@ -47,7 +47,7 @@ router.put("/acceptStatus/:id", async (req, res) => {
     if (!AcceptStatus) {
         return res.status(404).json({ error: "Enrollment not found" });
     }
-    res.json({ message: "Enrollment status updated to 'y' (Accepted)", AcceptStatus });
+    res.json(AcceptStatus);
 })
 
 router.put("/rejectStatus/:id", async (req, res) => {
