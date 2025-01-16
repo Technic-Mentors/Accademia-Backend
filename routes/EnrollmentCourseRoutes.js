@@ -43,7 +43,7 @@ router.get("/enrlRequests", async (req, res) => {
 });
 
 router.put("/acceptStatus/:id", async (req, res) => {
-    const AcceptStatus = await Enroll.findByIdAndUpdate(req.params.id, { status: "Y" }, { new: true }).populate("studentId", "email name")
+    const AcceptStatus = await Enroll.findByIdAndUpdate(req.params.id, { status: "Y" }, { new: true }).populate("studentId", "email name").populate("courseId", "title")
     if (!AcceptStatus) {
         return res.status(404).json({ error: "Enrollment not found" });
     }
