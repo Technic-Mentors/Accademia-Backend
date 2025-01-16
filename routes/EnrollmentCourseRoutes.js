@@ -18,8 +18,7 @@ router.get("/nametitle/:id", async (req, res) => {
 })
 // Enroll courses 
 router.post('/enrollments', async (req, res) => {
-    const { courseId, studentId, description } = req.body
-    console.log(courseId, studentId, description);
+    const { courseId, studentId } = req.body
 
     const [studentExists, courseExists] = await Promise.all([
         signUp.findById(studentId),
@@ -30,7 +29,7 @@ router.post('/enrollments', async (req, res) => {
         return res.status(400).json({ error: "Student or Course not found" })
     }
     const newEnroll = await Enroll.create({
-        courseId, studentId, description, status: "A"
+        courseId, studentId, status: "A"
     })
     res.json(newEnroll)
 });
