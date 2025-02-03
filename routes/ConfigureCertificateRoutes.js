@@ -4,15 +4,16 @@ import ConfigCertificate from "../Schema/ConfigCertificate.js"
 const router = express.Router()
 
 router.post("/confCertificate", errorHandling(async (req, res) => {
-    const { courseId, description } = req.body
+    const { courseId, description, configureDate } = req.body
 
     if (!courseId || !description) return res.status(400).json({ message: "Fields with * should be filled" })
     const checkCerti = await ConfigCertificate.findOne({ courseId })
-    if (checkCerti) return res.status(400).json({ message: "Course certificate already submit" })
+    if (checkCerti) return res.status(409).json({ message: "Course certificate already submit" })
 
     const configCer = await ConfigCertificate.create({
         courseId,
-        description
+        description,
+        configureDate
     })
     res.json(configCer)
 }))

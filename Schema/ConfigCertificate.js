@@ -6,7 +6,11 @@ const confCertificateSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "Course"
     },
-    description: String
+    description: String,
+    configureDate: {
+        type: Date,
+        default: Date.now,
+    },
 }, { timestamps: true })
 
 export default mongoose.model("configureCertificate", confCertificateSchema)
