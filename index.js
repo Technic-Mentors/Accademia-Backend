@@ -13,6 +13,7 @@ import taskRoutes from './routes/TasksRoutes.js'
 import submitTaskRoutes from './routes/SubmitTaskRoutes.js'
 import resultRoutes from './routes/ResultRoutes.js'
 import configCertiRouter from './routes/ConfigureCertificateRoutes.js'
+import genCertiRouter from './routes/GenCertificateRoutes.js'
 
 connectToMongo()
 const app = express()
@@ -31,6 +32,7 @@ app.use('/api/task', taskRoutes)
 app.use('/api/submit', submitTaskRoutes)
 app.use('/api/result', resultRoutes)
 app.use('/api/configCerti', configCertiRouter)
+app.use('/api/genCerti', genCertiRouter)
 
 app.listen(8000, () => {
     console.log('App listing at http://localhost:8000')
