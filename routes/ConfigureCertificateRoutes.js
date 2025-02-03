@@ -31,9 +31,15 @@ router.get("/getConfCertiById/:id", errorHandling(async (req, res) => {
 }))
 
 router.put("/updateConfCerti/:id", errorHandling(async (req, res) => {
-    const { description } = req.body
-
-    const updatedConfigCerti = await ConfigCertificate.findByIdAndUpdate(req.params.id, { $set: { description } }, { new: true })
+    const { description, configureDate } = req.body
+    const newCertiData = {}
+    if (description) {
+        newCertiData.description = description
+    }
+    if (configureDate) {
+        newCertiData.configureDate = configureDate
+    }
+    const updatedConfigCerti = await ConfigCertificate.findByIdAndUpdate(req.params.id, { $set: newCertiData }, { new: true })
     if (!updatedConfigCerti) return res.status(400).json({ message: "Configure certificate not found" })
     res.json(updatedConfigCerti)
 }))
