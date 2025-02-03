@@ -11,12 +11,12 @@ router.use((err, req, res, next) => {
 });
 
 router.post("/addLesson", errorHandling(async (req, res) => {
-    const { title, description, videoUrls, courseId } = req.body
+    const { title, description, videoUrls, courseId, status } = req.body
     const checkCourse = await Course.findById(courseId)
-    if (!checkCourse) return res.status(400).json({ message: "Course not found" })
+    if (!checkCourse) return res.status(404).json({ message: "Course not found" })
 
     const newLesson = await Lessons.create({
-        title, description, videoUrls, courseId
+        title, description, videoUrls, courseId, status: "N"
     })
 
     checkCourse.lessons.push(newLesson._id)
@@ -32,7 +32,7 @@ router.get("/allLessons", errorHandling(async (req, res) => {
 
 router.get("/get/:id", errorHandling(async (req, res) => {
     const getLessonById = await Lessons.findById(req.params.id)
-    if (!getLessonById) return res.status(400).json({ message: "Course not found" })
+    if (!getLessonById) return res.status(404).json({ message: "Course not found" })
     res.json(getLessonById)
 }))
 
@@ -45,14 +45,23 @@ router.put("/update/:id", errorHandling(async (req, res) => {
     if (videoUrls) newLesson.videoUrls = videoUrls
 
     const updateLesson = await Lessons.findByIdAndUpdate(req.params.id, { $set: newLesson }, { new: true })
-    if (!updateLesson) return res.status(400).json({ message: "Lesson not found" })
+    if (!updateLesson) return res.status(404).json({ message: "Lesson not found" })
     res.json(updateLesson)
 }))
 
 router.delete("/delete/:id", errorHandling(async (req, res) => {
     const getLessonById = await Lessons.findByIdAndDelete(req.params.id)
-    if (!getLessonById) return res.status(400).json({ message: "Course not found" })
+    if (!getLessonById) return res.status(404).json({ message: "Lesson not found" })
     res.json({ message: "lesson successfully deleted" })
+}))
+
+router.put("/updateStatus/:id", errorHandling(async (req, res) => {
+    const getLesson = await Lessons.findById(req.params.id)
+    if (!getLesson) return res.status(404).json({ message: "Lesson not found" })
+
+    const statusUpdate = getLesson.status === "N" ? "Y" : "N"
+    const updateLesson = await Lessons.findByIdAndUpdate(req.params.id, { $set: { status: statusUpdate } }, { new: true })
+    res.json(updateLesson)
 }))
 
 export default router;

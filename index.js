@@ -9,6 +9,10 @@ import schoolRoutes from "./routes/SchollRoutes.js"
 import enrollRoutes from "./routes/EnrollmentCourseRoutes.js"
 import videoRoutes from "./routes/VideoRoutes.js"
 import lessonRoutes from "./routes/LessonsRoutes.js"
+import taskRoutes from './routes/TasksRoutes.js'
+import submitTaskRoutes from './routes/SubmitTaskRoutes.js'
+import resultRoutes from './routes/ResultRoutes.js'
+import configCertiRouter from './routes/ConfigureCertificateRoutes.js'
 
 connectToMongo()
 const app = express()
@@ -23,6 +27,11 @@ app.use('/api/school', schoolRoutes)
 app.use('/api/enrollCourse', enrollRoutes)
 app.use('/api/video', videoRoutes)
 app.use('/api/lesson', lessonRoutes)
+app.use('/api/task', taskRoutes)
+app.use('/api/submit', submitTaskRoutes)
+app.use('/api/result', resultRoutes)
+app.use('/api/configCerti', configCertiRouter)
+
 app.listen(8000, () => {
     console.log('App listing at http://localhost:8000')
 })

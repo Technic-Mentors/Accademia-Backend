@@ -38,7 +38,7 @@ const courseSchema = new Schema({
     }],
     userId: {
         type: Schema.Types.ObjectId,
-        ref: "User"
+        ref: "SignUp"
     },
     image: {
         type: String

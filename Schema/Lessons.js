@@ -16,7 +16,8 @@ const lessonSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "Course",
         required: true
-    }
-});
+    },
+    status: String
+}, { timestamps: true });
 
 export default mongoose.model("Lesson", lessonSchema);

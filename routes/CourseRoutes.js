@@ -73,7 +73,7 @@ router.post("/addcourse", upload.single("image"), errorHandling(async (req, res)
 
 // {get courses}
 router.get("/getAllCourses", errorHandling(async (req, res) => {
-    const allCourses = await Course.find()
+    const allCourses = await Course.find().populate("userId")
     const Catagory = allCourses.map((data) => {
         const cat = data.categoryId.toString()
         const allCat = Category.findById(cat, "category")
