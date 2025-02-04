@@ -7,10 +7,10 @@ const router = express.Router()
 router.post("/generateCertificate", errorHandling(async (req, res) => {
     const { courseId, status, generateDate } = req.body
 
-    const enrolledCourses = await Enrollment.find({ courseId })
-    const candidateId = enrolledCourses.filter(course => course.status === "Y").map(course => (
-        course.studentId
-    ))
+    if (!courseId) return res.status(400).json({ message: "please select course first" })
+
+    const enrolledCourses = await Enrollment.find({ courseId, status: "Y" })
+    const candidateId = enrolledCourses.map(course => course.studentId)
     if (candidateId.length === 0) return res.status(400).json({ message: "No student enrolled for this course" })
 
     const generateCertificate = await GenCertificate.create({
