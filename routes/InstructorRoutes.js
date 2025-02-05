@@ -14,7 +14,7 @@ router.use((err, req, res, next) => {
     next(err)
 });
 
-router.post("/addteacher", upload.single("image"), errorHandling(async (req, res) => {
+router.post("/addTeacher", upload.single("image"), errorHandling(async (req, res) => {
     const { name, email, number, qualification, experience, description, website, userId, youtube, twitterUrl, fbUrl, instaUrl, experties } = req.body
 
     const [checkTeacherEmail, checkUser] = await Promise.all([
