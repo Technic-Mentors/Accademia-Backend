@@ -33,9 +33,9 @@ const checkExistingSchool = async (req, res, next) => {
 };
 
 // {Add}
-router.post("/addschool", upload.single("image"), checkExistingSchool, errorHandling(async (req, res) => {
+router.post("/addSchool", upload.single("image"), checkExistingSchool, errorHandling(async (req, res) => {
     const { name, email, number, city, address, detail, category, fpNumber, userId } = req.body;
-
+    if (!name || !email || !number || !city || !address || !detail || !category || !fpNumber) return res.status(400).json({ message: "Fields with * should be filled" })
     const checkUser = await signUp.findById(userId);
     if (!checkUser) {
         return res.status(400).json({ message: "user not found" });
